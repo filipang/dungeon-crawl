@@ -1,0 +1,160 @@
+/*******************************************************************************
+* 
+* FILENAME : Active.c
+*
+* DESCRIPTION : Source file containing Active functions
+*
+* AUTHOR : filipang           
+* 
+* START DATE :    12/11/2021
+*
+*******************************************************************************/
+
+
+int activeCreate()
+{
+	return transformCreate(OBJECT_TYPE_ACTIVE);
+}
+
+void activeDelete(int id)
+{
+	transformDelete(id, OBJECT_TYPE_ACTIVE);
+}
+
+Active* activeGet(int id)
+{
+	return (Active *)transformGet(id, OBJECT_TYPE_ACTIVE);
+}
+
+void activeStart(int id)
+{
+	Active *Active_ptr = activeGet(id);
+	input_controller *input = memoryGetInputState();
+	PersistentGameState *state = memoryGetPersistentGameState();
+	if(input->use.key_press)
+	{
+		switch(Active_ptr->Active_action)
+		{
+			case ACTIVE_RANDOMIZE_MAP:
+				mapRandomjze();
+				mapGetCurrent()->map_changed = 1;	
+				break;
+
+			case ACTIVE_STAIRS_DOWN:
+				state->current_level++;
+				creatureGetPlayer()->level++;
+
+				Map *maps = memoryGetMaps();
+				if(!maps[state->current_level].created)
+				{
+					gameLoadNextLevel();	
+				}
+
+				break;
+
+			case ACTIVE_STAIRS_UP:
+				state->current_level--;
+				creatureGetPlayer()->level--;
+
+				break;
+
+			default:
+				printf("Tried bad Active!\n");
+				break;
+		};
+	}
+	input->use.key_press = 0;
+}
+
+int activeCheck(int id)
+{
+	Active *Active_ptr = activeGet(id);
+	PersistentGameState *state = memoryGetPersistentGameState();
+	Creature *player_Creature = creatureGetPlayer();
+
+	switch(Active_ptr->Active_action)
+	{
+		case ACTIVE_STAIRS_DOWN:
+		case ACTIVE_STAIRS_UP:
+		case ACTIVE_RANDOMIZE_MAP:
+			return transformCheckCollision((Transform *)Active_ptr, 
+					 			  (Transform *)player_Creature);
+			break;		
+			
+		default:
+			printf("Tried bad Active!\n");
+			return 0;
+			break;		
+	}
+}
+
+void activeProcessList()
+{
+	PersistentGameState *state = memoryGetPersistentGameState();
+	int Active_count = state->Active_count;
+	for(int i = 0; i < Active_count; i++)
+	{
+		if(activeCheck(i) && activeGet(i)->level == state->current_level)
+		{
+			activeStart(i);
+		}
+	}
+}
+
+void activeCreateRandomize(Vector2f position)
+{
+	int index = transformCreate(OBJECT_TYPE_ACTIVE);
+
+	Active *Active_ptr = activeGet(index);	
+	Active_ptr->Active_action = ACTIVE_RANDOMIZE_MAP;
+	Map *map_ptr = mapGetCurrent();
+
+
+	Active_ptr->position = position; 
+
+	Active_ptr->collider.w = 64;
+	Active_ptr->collider.h = 64;
+
+	Active_ptr->render.w = 64;
+	Active_ptr->render.h = 64;
+}
+
+void activeCreateStairsUp(Vector2f position)
+{
+	PersistentGameState *state = memoryGetPersistentGameState();
+	int index = activeCreate();
+	Active *Active_ptr = activeGet(index);	
+	Active_ptr->Active_action = ACTIVE_STAIRS_UP;
+	Active_ptr->level = state->current_level;
+	printf("CREATED STAIRS UP ON LEVEL %d\n", state->current_level);
+
+	Map *map_ptr = mapGetCurrent();
+
+	Active_ptr->position = position; 
+
+	Active_ptr->collider.w = 64;
+	Active_ptr->collider.h = 64;
+
+	Active_ptr->render.w = 64;
+	Active_ptr->render.h = 64;
+}
+
+void activeCreateStairsDown(Vector2f position)
+{
+	PersistentGameState *state = memoryGetPersistentGameState();
+	int index = activeCreate();
+	Active *Active_ptr = activeGet(index);	
+	Active_ptr->Active_action = ACTIVE_STAIRS_DOWN;
+	Active_ptr->level = state->current_level;
+	printf("CREATED STAIRS DOWN ON LEVEL %d\n", state->current_level);
+
+	Map *map_ptr = mapGetCurrent();
+
+	Active_ptr->position = position; 
+
+	Active_ptr->collider.w = 64;
+	Active_ptr->collider.h = 64;
+
+	Active_ptr->render.w = 64;
+	Active_ptr->render.h = 64;
+}

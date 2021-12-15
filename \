@@ -1,0 +1,378 @@
+/*******************************************************************************
+* 
+* FILENAME : graphics.c
+*
+* DESCRIPTION : Source file containing graphics functions
+*
+* AUTHOR : filipang           
+* 
+* START DATE :    5/11/2021
+*
+*******************************************************************************/
+
+//Screen dimension constants
+const int SCREEN_WIDTH = 900;
+const int SCREEN_HEIGHT = 500;
+
+void loadTextureBMP(char *path, int slot, GraphicsState *sdl_state)
+{
+	//Load image at specified path
+	SDL_Surface* loadedSurface = SDL_LoadBMP( path );
+	
+	//Create texture from surface pixels*/
+	sdl_state->textures[slot] = 
+		SDL_CreateTextureFromSurface(sdl_state->renderer, loadedSurface);
+
+	//Check for error
+	if( sdl_state->textures[slot] == NULL )
+	{
+		printf( "Unable to create texture! SDL Error: %s\n", 
+				SDL_GetError() );
+	}
+
+	//Get rid of old loaded surface
+	SDL_FreeSurface( loadedSurface );
+}
+
+void loadTexturePNG(char *path, int slot, GraphicsState *sdl_state)
+{
+	IMG_Init( IMG_INIT_PNG );
+	//Load image at specified path
+	SDL_Surface* loadedSurface = IMG_Load( path );
+	
+	//Create texture from surface pixels*/
+	sdl_state->textures[slot] = 
+		SDL_CreateTextureFromSurface(sdl_state->renderer, loadedSurface);
+
+	//Check for error
+	if( sdl_state->textures[slot] == NULL )
+	{
+		printf( "Unable to create texture! SDL Error: %s\n", 
+				SDL_GetError() );
+	}
+
+	//Get rid of old loaded surface
+	SDL_FreeSurface( loadedSurface );
+}
+
+void closeGraphics(GraphicsState *sdl_state)
+{
+    //Deallocate surface
+    SDL_DestroyTexture(sdl_state->textures[0]);
+
+    //Destroy window
+    SDL_DestroyWindow(sdl_state->window);
+    sdl_state->window = NULL;
+
+    //Quit SDL subsystems
+    SDL_Quit();
+}
+
+void createClipRects(GraphicsState *sdl_state)
+{
+	for(int i = 0; i < 12; i++)
+	{
+		for(int j = 0; j < 12; j++)
+		{
+			sdl_state->clips[i][j].x = 64 * j;
+			sdl_state->clips[i][j].y = 64 * i;
+			sdl_state->clips[i][j].w = 32;
+			sdl_state->clips[i][j].h = 50;
+		}
+	}
+}
+
+int initializeGraphics()
+{
+	GraphicsState *sdl_state = getSDLState();
+	//Initialization flag
+    int success = 1;
+
+    //Initialize SDL
+    if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+    {
+        printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
+        success = 0;
+    }
+    else
+    {
+        //Create window
+        sdl_state->window = 
+			SDL_CreateWindow( "Dungeon Crawl", 
+					          SDL_WINDOWPOS_UNDEFINED, 
+							  SDL_WINDOWPOS_UNDEFINED, 
+							  sdl_state->screen_size.w = SCREEN_WIDTH, 
+							  sdl_state->screen_size.h = SCREEN_HEIGHT, 
+							  SDL_WINDOW_SHOWN );
+
+        if( sdl_state->window == NULL )
+        {
+            printf("Window could not be created! SDL_Error: %s\n", 
+				   SDL_GetError() );
+            success = 0;
+        }
+        else
+        {
+			sdl_state->renderer = 
+				SDL_CreateRenderer( sdl_state->window, 
+						 			-1, SDL_RENDERER_ACCELERATED );
+			if( sdl_state->renderer == NULL )
+			{
+				printf( "Renderer could not be created! SDL Error: %s\n", 
+						SDL_GetError() );
+
+				success = 0;
+			}
+			
+			//Get window surface
+            sdl_state->screenSurface = 
+				SDL_GetWindowSurface( sdl_state->window );
+        }
+    }
+
+	loadTextureBMP("tex.bmp", 1, sdl_state);
+	loadTexturePNG("tex.png", 0, sdl_state);
+	createClipRects(sdl_state);
+    return success;
+}
+
+int getClipFromTile(int tile)
+{
+	int clip;
+	switch(tile)
+	{
+		case TILE_GRASS:
+			clip = CLIP_GROUND;
+			break;
+		case TILE_WALL:
+			clip = CLIP_WALL;
+		   	break;
+		default: 
+			clip = CLIP_GROUND;
+			break;
+	}
+	return clip;
+}
+
+void cacheMapToTexture()
+{
+	Map* maps = getMaps();
+	GraphicsState *sdl_state = getSDLState();
+	PersistentGameState *state = getState();
+	TransientGameState *ui_state = getUIState();
+	Map *map_ptr = &maps[state->current_level];
+
+	sdl_state->map_elements[state->current_level] = 
+		SDL_CreateTexture(sdl_state->renderer,
+						  SDL_PIXELFORMAT_RGBA32, 
+						  SDL_TEXTUREACCESS_TARGET, 
+						  map_ptr->size.x * map_ptr->tile_len, 
+						  map_ptr->size.y * map_ptr->tile_len);
+
+	SDL_SetRenderTarget( sdl_state->renderer, 
+						 sdl_state->map_elements[state->current_level]);	
+
+	for(int i = 0; i < map_ptr->size.h; i++)
+	{
+		for(int j = 0; j < map_ptr->size.w; j++)
+		{
+			SDL_Rect tile;
+			tile.x = j * map_ptr->tile_len;
+			tile.y = i * map_ptr->tile_len;
+			tile.w = map_ptr->tile_len;
+			tile.h = map_ptr->tile_len;
+			SDL_Rect *source;
+			
+			//NOTE(filip): 
+			source = &sdl_state->clips[0][getClipFromTile(map_ptr->data[i][j])];
+			SDL_RenderCopy( sdl_state->renderer, sdl_state->textures[1], 
+							source, &tile);
+		}
+	}
+}
+
+void drawMap()
+{
+	Map* maps = getMaps();
+	GraphicsState *sdl_state = getSDLState();
+	PersistentGameState *state = getState();
+	TransientGameState *ui_state = getUIState();
+	Map *map_ptr = &maps[state->current_level];
+	
+	//Bottom viewport
+	if(map_ptr->map_changed)
+	{
+		map_ptr->map_changed = 0;
+		cacheMapToTexture();
+	}
+
+	SDL_Rect map_rect;
+
+	map_rect.w = round(state->camera_transform.render.w);
+	map_rect.h = round(state->camera_transform.render.h);
+
+	map_rect.x = round(state->camera_transform.position.x
+			  		   - state->camera_transform.render.w/2);
+
+	map_rect.y = round(state->camera_transform.position.y
+					   - state->camera_transform.render.h/2);
+
+	SDL_SetRenderTarget( sdl_state->renderer,  NULL);
+
+	SDL_RenderCopy( sdl_state->renderer, 
+					sdl_state->map_elements[state->current_level], 
+					&map_rect, NULL);
+	
+}
+
+void drawObject(Transform *transform)
+{
+	GraphicsState *sdl_state = getSDLState();
+	PersistentGameState *state = getState();
+	TransientGameState *ui_state = getUIState();
+
+	Transform *camera_transform =
+			&state->camera_transform;
+
+	SDL_Rect tile;
+
+	tile.w = transform->render.w;
+
+	tile.h = transform->render.h;
+
+	tile.x = -camera_transform->position.x +
+	   		 camera_transform->render.w/2 +	
+			 transform->position.x - 
+			 tile.w/2;
+
+	tile.y = -camera_transform->position.y + 
+	   		 camera_transform->render.h/2 +	
+			 transform->position.y - 
+			 tile.h/2;
+
+	SDL_SetRenderTarget( sdl_state->renderer,  NULL);
+
+	SDL_RenderCopy( sdl_state->renderer, 
+					sdl_state->textures[0], 
+					&sdl_state->clips[getFacingDirection(transform->position_delta)]
+									 [transform->clip], 
+					&tile);
+
+}
+
+void updateCreatureAnimation(Creature *creature_ptr)
+{
+	PersistentGameState *state = getState();
+	switch(creature_ptr->animation_state)
+	{
+		case ANIMATION_STATE_WALK:
+
+			if(creature_ptr->animation_state_reset)
+			{
+				creature_ptr->animation_state_reset = 0;
+				creature_ptr->animation_timer = 0;
+			}
+
+			creature_ptr->animation_timer += state->game_delta_time;
+			
+			int clip_index = 
+				floor(creature_ptr->animation_timer / (1.0/ANIMATION_FPS)); 	
+
+			clip_index = clip_index % 8 + 1;
+
+			creature_ptr->clip = clip_index;
+
+			break;
+
+		case ANIMATION_STATE_IDLE:
+
+			creature_ptr->clip = 0;
+			break;
+	}
+
+}
+
+void drawCreatures()
+{
+
+	PersistentGameState *state = getState();
+	Creature *creatures = getCreatures();
+	Creature *creature_ptr;
+	int creature_count = 0, creature_id = 0;
+
+	int last_creature = state->creature_count;
+	for(int i = 0; i < last_creature; i++)
+	{
+		creature_ptr = getCreature(i);
+		if(creature_ptr)
+		{
+			updateCreatureAnimation(creature_ptr);
+			if(creature_ptr->level == state->current_level)
+			{
+				drawObject((Transform *)creature_ptr);
+			}
+		}
+		else
+		{
+			last_creature++;
+		}
+	}
+}
+
+int getActiveClip(int type)
+{
+	switch(type)
+	{
+		case ACTIVE_RANDOMIZE_MAP:
+			return CLIP_ACTIVE_RANDOMIZE;
+		case ACTIVE_STAIRS_UP:
+			return CLIP_ACTIVE_UP;
+		case ACTIVE_STAIRS_DOWN:
+			return CLIP_ACTIVE_DOWN;
+		default:
+			return CLIP_WALL;
+	};
+}
+
+void drawActives()
+{
+	PersistentGameState *state = getState();
+	Active *actives = getActives();
+	Active *active_ptr;
+	int active_count = 0, active_id = 0;
+
+	int last_active = state->active_count;
+	for(int i = 0; i < last_active; i++)
+	{
+
+		active_ptr = getActive(i);
+		if(active_ptr)
+		{
+			if(active_ptr->level == state->current_level)
+			{
+				drawObject((Transform *)active_ptr);
+			}
+		}
+		else
+		{
+			last_Active++;
+		}
+	}
+}
+
+void processGameState() 
+{
+	GraphicsState *sdl_state = getSDLState();
+	TransientGameState *ui_state = getUIState();
+
+	//Clear screen
+	SDL_RenderClear( sdl_state->renderer );
+	
+	drawMap();
+	drawActives();
+
+	drawCreatures();
+	//Update screen
+	SDL_RenderPresent( sdl_state->renderer );
+	
+}
