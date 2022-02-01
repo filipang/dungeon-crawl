@@ -61,6 +61,7 @@ void graphicsClose(GraphicsState *sdl_state)
     //Deallocate surface
     SDL_DestroyTexture(sdl_state->textures[0]);
     SDL_DestroyTexture(sdl_state->textures[1]);
+    SDL_DestroyTexture(sdl_state->textures[2]);
 
 	for(int i; i < state->map_count; i++)
 	{
@@ -75,20 +76,6 @@ void graphicsClose(GraphicsState *sdl_state)
     //SDL_Quit();
 }
 
-void graphicsCreateClipRects(GraphicsState *sdl_state)
-{
-	for(int i = 0; i < 12; i++)
-	{
-		for(int j = 0; j < 12; j++)
-		{
-			sdl_state->clips[i][j].x = 64 * j;
-			sdl_state->clips[i][j].y = 64 * i;
-			sdl_state->clips[i][j].w = 32;
-			sdl_state->clips[i][j].h = 50;
-		}
-	}
-}
-
 int graphicsInitialize()
 {
 	GraphicsState *sdl_state = memoryGetGraphicsState();
@@ -98,9 +85,13 @@ int graphicsInitialize()
 		kiss_init("Dungeon Crawl", &sdl_state->objects, 
 				  SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	graphicsLoadTextureBMP("tex.bmp", 1, sdl_state);
 	graphicsLoadTexturePNG("tex.png", 0, sdl_state);
-	graphicsCreateClipRects(sdl_state);
+	graphicsLoadTextureBMP("tex.bmp", 1, sdl_state);
+	graphicsLoadTexturePNG("slice.png", 2, sdl_state);
+	graphicsLoadTexturePNG("blood_splatter.png", 3, sdl_state);
+	graphicsLoadTexturePNG("icon_set.png", 4, sdl_state);
+	graphicsLoadTexturePNG("dungeon.png", 5, sdl_state);
+	graphicsLoadTexturePNG("tiles.png", 6, sdl_state);
 
 	char message[KISS_MAX_LENGTH];
 	int draw, quit;
@@ -124,6 +115,13 @@ int graphicsInitialize()
 
 	sdl_state->label.textcolor.r = 255;
 
+	strcpy(message, "Kill count: ");
+
+	kiss_label_new(&sdl_state->kill_count_label, &sdl_state->window, message,
+				    sdl_state->window.rect.w / 2 - strlen(message) *
+					kiss_textfont.advance / 2,
+					20);
+
 	kiss_button_new(&sdl_state->button_save, &sdl_state->window, "Save",
 					sdl_state->window.rect.w - 70 -  kiss_normal.w / 2, 
 					50);
@@ -141,7 +139,7 @@ int graphicsInitialize()
 								sdl_state->screen_size.h);
 
 	kiss_window_new(&sdl_state->item_box, NULL, 0, 0, 0,
-					150, 150);
+					150, 100);
 
 	SDL_Color color = {115, 140, 115, 255};
 	sdl_state->item_box.bg = color;
@@ -150,6 +148,7 @@ int graphicsInitialize()
 				   0, 0);
 	sdl_state->item_box.visible = 0;
 
+	SDL_GL_SetSwapInterval(0);
 	return 1;
 }
 
@@ -202,29 +201,59 @@ SDL_FRect graphicsTransformToScreen(Transform *transform)
 	return rect;
 }
 
-void graphicsDrawTransform(Transform *transform)
+void graphicsDrawEntity(Entity *entity_ptr)
 {			
-	graphicsDebugDrawTransform(transform);
-
-	GraphicsState *sdl_state = memoryGetGraphicsState();
 	PersistentGameState *state = memoryGetPersistentGameState();
 	TransientGameState *ui_state = memoryGetTransientGameState();
+	if(entity_ptr->has_transform && 
+	   ui_state->highlight_id != entity_ptr->id)
+	{
+		Transform *entity_transform = &entity_ptr->transform;
+		Animation *entity_animation = &entity_ptr->animation;
+		graphicsDebugDrawTransform(entity_transform);
 
+		GraphicsState *sdl_state = memoryGetGraphicsState();
 
-	SDL_SetRenderTarget( sdl_state->renderer,  NULL);
+		SDL_SetRenderTarget( sdl_state->renderer,  NULL);
 
-	SDL_FRect dest = graphicsTransformToScreen(transform);
+		SDL_FRect dest = graphicsTransformToScreen(entity_transform);
 
-	dest = graphicsApplyCamera(dest);
+		dest = graphicsApplyCamera(dest);
 
-	SDL_RenderCopyF(sdl_state->renderer, 
-					sdl_state->textures[0], 
-					&sdl_state->clips[transform->clip_row]
-									 [transform->clip_col], 
-					&dest);
+		SDL_Rect clip = animationGetRect(entity_ptr->animation.clip_row,
+										 entity_ptr->animation.clip_col,
+										 entity_ptr->animation.texture_id);
+
+		int reset_alpha = 0;
+		if(!entity_ptr->has_temporary_animation)
+		{
+			SDL_RenderCopyF(sdl_state->renderer, 
+							sdl_state->textures[entity_ptr->animation.texture_id], 
+							&clip, &dest);
+		}
+		else
+		{
+			if(entity_ptr->has_temporary_animation)
+			{
+				SDL_SetTextureAlphaMod(sdl_state->textures[entity_ptr->animation.texture_id],
+									   (unsigned char)(entity_ptr->temporary_animation.countdown/entity_ptr->temporary_animation.countdown_start*255));
+				reset_alpha = 1;
+			}
+			SDL_RenderCopyExF(sdl_state->renderer, 
+						      sdl_state->textures[entity_ptr->animation.texture_id], 
+							  &clip, &dest,
+							  entity_ptr->transform.angle,
+							  NULL, SDL_FLIP_NONE);		
+			if(reset_alpha)
+			{
+				SDL_SetTextureAlphaMod(sdl_state->textures[entity_ptr->animation.texture_id],
+									   255);
+			}
+		}
+	}
 }
 
-void graphicsScreenDrawTransform(Transform *transform, Vector2f position)
+void graphicsScreenDrawEntity(Entity *entity_ptr, Vector2f position)
 {			
 	GraphicsState *sdl_state = memoryGetGraphicsState();
 	PersistentGameState *state = memoryGetPersistentGameState();
@@ -236,14 +265,16 @@ void graphicsScreenDrawTransform(Transform *transform, Vector2f position)
 	SDL_FRect dest;
 	dest.x = position.x;
 	dest.y = position.y;
-	dest.w = transform->render.w;
-	dest.h = transform->render.h;
+	dest.w = entity_ptr->transform.render.w;
+	dest.h = entity_ptr->transform.render.h;
+
+	SDL_Rect clip = animationGetRect(entity_ptr->animation.clip_row,
+									 entity_ptr->animation.clip_col,
+									 entity_ptr->animation.texture_id);
 
 	SDL_RenderCopyF(sdl_state->renderer, 
-					sdl_state->textures[0], 
-					&sdl_state->clips[transform->clip_row]
-									 [transform->clip_col], 
-					&dest);
+					sdl_state->textures[entity_ptr->animation.texture_id], 
+					&clip, &dest);
 }
 
 int activeGetClip(int type)
@@ -261,7 +292,7 @@ int activeGetClip(int type)
 	};
 }
 
-void graphicsDebugDrawRect(float x, float y, float w, float h)
+void graphicsDrawRect(float x, float y, float w, float h)
 {
 	GraphicsState *sdl_state = memoryGetGraphicsState();
 
@@ -276,6 +307,28 @@ void graphicsDebugDrawRect(float x, float y, float w, float h)
 
 	SDL_RenderDrawLineF(sdl_state->renderer, 
 						x + w, y + h, x + w, y);
+}
+
+void graphicsDebugDrawRect(float x, float y, float w, float h)
+{
+	GraphicsState *sdl_state = memoryGetGraphicsState();
+	SDL_SetRenderTarget(sdl_state->renderer, 
+					 	sdl_state->debug_frame_buffer);	
+
+	SDL_RenderDrawLineF(sdl_state->renderer, 
+						x, y, x + w, y);	
+
+	SDL_RenderDrawLineF(sdl_state->renderer, 
+						x, y, x, y + h);	
+
+	SDL_RenderDrawLineF(sdl_state->renderer, 
+						x + w, y + h, x, y + h);
+
+	SDL_RenderDrawLineF(sdl_state->renderer, 
+						x + w, y + h, x + w, y);
+
+	SDL_SetRenderTarget(sdl_state->renderer, 
+					 	NULL);	
 }
 
 void graphicsDebugDrawTransform(Transform *transform)
@@ -296,15 +349,6 @@ void graphicsDebugDrawTransform(Transform *transform)
 
 	graphicsDebugDrawRect(position.x, position.y, 
 						  transform->collider.w, transform->collider.h);
-
-	/*
-	position = transformGetScreenTriggerCorner(transform);
-
-    SDL_SetRenderDrawColor(sdl_state->renderer, 255, 255, 0, 255);		
-
-	graphicsDebugDrawRect(position.x, position.y, 
-						  transform->trigger.w, transform->trigger.h);
-	*/
 
 	// So we don't draw to the debug buffer by accident
 	SDL_SetRenderTarget(sdl_state->renderer, 
@@ -390,19 +434,18 @@ void graphicsProcessFrame()
 	
 	mapDrawCurrent();
 
-	activeDrawList();
-
-	creatureDrawList();
-
-	itemDrawList();
-
+	entityDrawList();
+	
 	uiDraw();
-
-	uiDrawItemInfoBox();
 
 	uiDrawInventory();
 
-	graphicsDebugDrawFrameBuffer();
+	uiDrawItemInfoBox();
+
+	if(ui_state->draw_debug)
+	{
+		graphicsDebugDrawFrameBuffer();
+	}
 	graphicsDebugClearFrameBuffer();
 
 	//Update screen

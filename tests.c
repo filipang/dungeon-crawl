@@ -10,39 +10,15 @@
 *
 *******************************************************************************/
 
-int testCreateFullCreatureList()
+int testCreateFullEntityList()
 {
-	printf("Creating as many creatures as possible...\n");
+	printf("Creating as many entities as possible...\n");
 	int i = 0;
 	while(creatureCreate() != -1)
 	{
 		i++;
 	}
 	printf("Stopped at %d creatures because we ran out of memory. \n", i);
-	return i;
-}
-
-int testCreateFullItemList()
-{
-	printf("Creating as many items as possible...\n");
-	int i = 0;
-	while(itemCreate() != -1)
-	{
-		i++;
-	}
-	printf("Stopped at %d items because we ran out of memory. \n", i);
-	return i;
-}
-
-int testCreateFullActiveList()
-{
-	printf("Creating as many actives as possible...\n");
-	int i = 0;
-	while(activeCreate() != -1)
-	{
-		i++;
-	}
-	printf("Stopped at %d actives because we ran out of memory. \n", i);	
 	return i;
 }
 
@@ -68,24 +44,6 @@ void testDeleteCreatureList(int n)
 	printf("Success!\n");
 }
 
-void testDeleteItemList(int n)
-{
-	printf("Deleting %d items...\n", n);
-	for(int i = 0; i < n; i++)
-	{
-		itemDelete(i);
-	}
-	printf("Success!\n");
-}
-void testDeleteActiveList(int n)
-{
-	printf("Deleting %d actives...\n", n);
-	for(int i = 0; i < n; i++)
-	{
-		activeDelete(i);
-	}
-	printf("Success!\n");
-}
 void testDeleteMapList(int n)
 {
 	printf("Deleting %d maps...\n", n);

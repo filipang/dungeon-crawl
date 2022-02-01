@@ -10,40 +10,24 @@
 *
 *******************************************************************************/
 
-int creatureCreate()
+Entity *creatureGetEntity(Creature *creature)
 {
-	Creature* creature = creatureGet(transformCreate(OBJECT_TYPE_CREATURE));
-
-	if(creature)
-	{
-		creature->forward_direction = vector2fDown();
-		return creature->id;
-	}
-	else
-	{
-		return -1;
-	}
+	return (Entity *)((void *)creature - struct_offset(Entity, creature));	
 }
 
-void creatureDelete(int id)
-{
-	transformDelete(id, OBJECT_TYPE_CREATURE);
-}
-
-Creature *creatureGet(int id)
-{
-	return (Creature *)transformGet(id, OBJECT_TYPE_CREATURE);
-}
-
-void creatureCreatePlayer(Vector2f position)
+void creatureCreatePlayer(Vector2f position, int level)
 {
 
 	PersistentGameState *state = memoryGetPersistentGameState();
-	int creature_id = creatureCreate();
+	int creature_id = entityMarkCreate();
+	Entity *entity_player = entityGet(creature_id);
+	entity_player->has_creature = 1;
+	entity_player->has_animation = 1;
+	entity_player->animation.texture_id = 0;
+	entity_player->has_transform = 1;
 	state->player.creature_id = creature_id;
-	Creature *creature_ptr = creatureGet(creature_id);
-
-	Transform *transform = (Transform *)creature_ptr;
+	Creature *creature_ptr = &entity_player->creature;
+	Transform *transform = &entity_player->transform;
 
 	transform->position = position;
 
@@ -52,21 +36,38 @@ void creatureCreatePlayer(Vector2f position)
 	transform->trigger  = vector2f(64.0, 100.0);
 
 	creature_ptr->type = CREATURE_PLAYER;
-	creature_ptr->level = state->current_level;
+	transform->level = level;
 	
 	creature_ptr->max_health = 10;
 	creature_ptr->health = 10;
 	creature_ptr->damage = 3;
-	creature_ptr->movement_speed = 180.0;	
+	creature_ptr->movement_speed = 200.0;	
 	creature_ptr->vision_range = 400;
+	creature_ptr->attack_duration = 0.3;
+	
+	for(int i = 0; i < 15; i++)
+	{
+		state->player.equipped_items[i] = -1;
+	}
+
+	Vector2f hitbox_collider = {50, 50};
+
+	creature_ptr->attack_hitbox_range = 50;	
+	creature_ptr->attack_hitbox_size = hitbox_collider;
 }
 
-void creatureCreateEnemy(Vector2f position)
+void creatureCreateEnemy(Vector2f position, int level)
 {
 	PersistentGameState *state = memoryGetPersistentGameState();
-	int creature_id = creatureCreate();
-	Creature *creature_ptr = creatureGet(creature_id);
-	Transform *transform = (Transform *)creature_ptr;
+	int creature_id = entityMarkCreate();
+	Entity *entity_enemy = entityGet(creature_id);
+	entity_enemy->has_creature = 1;
+	entity_enemy->has_animation = 1;
+	entity_enemy->animation.texture_id = 0;
+
+	entity_enemy->has_transform = 1;
+	Creature *creature_ptr = &entity_enemy->creature;
+	Transform *transform = &entity_enemy->transform;
 	Map *map_ptr = mapGetCurrent();
 
 	transform->position = position;
@@ -76,13 +77,19 @@ void creatureCreateEnemy(Vector2f position)
 	transform->trigger  = vector2f(64.0, 100.0);
 
 	creature_ptr->type = CREATURE_ENEMY;
-	creature_ptr->level = state->current_level;
+	transform->level = level;
 
 	creature_ptr->max_health = 10;
 	creature_ptr->health = 10;
-	creature_ptr->damage = 2;
-	creature_ptr->movement_speed = 160.0;	
-	creature_ptr->vision_range = 200;
+	creature_ptr->damage = 1;
+	creature_ptr->movement_speed = 220.0;	
+	creature_ptr->vision_range = 400;
+	creature_ptr->attack_duration = 0.3;
+	
+	Vector2f hitbox_collider = {50, 50};
+
+	creature_ptr->attack_hitbox_range = 50;	
+	creature_ptr->attack_hitbox_size = hitbox_collider;
 }
 
 void creatureProcessPlayer()
@@ -90,7 +97,9 @@ void creatureProcessPlayer()
 	PersistentGameState *state = memoryGetPersistentGameState();
 	TransientGameState *ui_state = memoryGetTransientGameState();
 	InputState *input = memoryGetInputState();
-	Creature *player_creature = creatureGet(state->player.creature_id);
+	Entity *entity_player = entityGet(state->player.creature_id);
+	Creature *creature_ptr = &entity_player->creature;
+	Transform *transform_ptr = &entity_player->transform;
 
 	// NOTE(filip): This is for keyboard arrow movement
 	Vector2f move_input =  
@@ -99,23 +108,23 @@ void creatureProcessPlayer()
 		!!input->move_down.key_hold - !!input->move_up.key_hold
 	};
 
-	if(!player_creature->animation_lock)
+	if(!creature_ptr->animation_lock)
 	{
 		if(move_input.x != 0 || move_input.y != 0)
 		{
-			player_creature->animation_state = ANIMATION_STATE_WALK;
-			player_creature->forward_direction = vector2fNormalize(move_input);
+			creature_ptr->animation_state = ANIMATION_STATE_WALK;
+			creature_ptr->forward_direction = vector2fNormalize(move_input);
 			Vector2f delta = vector2fMultiply
 			(
-				player_creature->forward_direction, 
-				player_creature->movement_speed * state->game_delta_time
+				creature_ptr->forward_direction, 
+				creature_ptr->movement_speed * state->game_delta_time
 			);
 										
-			transformTryMove((Transform *)player_creature, delta);
+			transformTryMove(transform_ptr, delta);
 		}
 		else
 		{
-			player_creature->animation_state = ANIMATION_STATE_IDLE;
+			creature_ptr->animation_state = ANIMATION_STATE_IDLE;
 		}
 
 	}
@@ -124,100 +133,104 @@ void creatureProcessPlayer()
 	float min_distance = MAX_DISTANCE;
 	int min_id = -1;
 	int min_type = -1;
-	int skipped_actives = 0;
-	Active *active_ptr;
-	for(int i = 0; i < state->active_count + skipped_actives; i++)
+	int skipped_entities = 0;
+	Entity *entity_ptr;
+	for(int i = 0; i < state->entity_count + skipped_entities; i++)
 	{
-		active_ptr = activeGet(i);
-		if(active_ptr)
+		entity_ptr = entityGet(i);
+		if(entity_ptr && entity_ptr->created)
 		{
-			float distance = 
-				vector2fDistance(active_ptr->position, 
-								 player_creature->position);
-
-			if(active_ptr->level == state->current_level &&
-			   distance < min_distance &&
-			   distance < 100)
+			if(entity_ptr->has_transform)
 			{
-				min_id = active_ptr->id;
-				min_type = active_ptr->object_type;
-				min_distance = distance;
+				float distance = 
+					vector2fDistance(entity_ptr->transform.position, 
+									 transform_ptr->position);
+
+				if(entity_ptr->transform.level == state->current_level &&
+				   distance < min_distance &&
+				   distance < 100 &&
+				   (entity_ptr->has_active || entity_ptr->has_item))
+				{
+					min_id = entity_ptr->id;
+					min_distance = distance;
+				}
 			}
 		}
 		else
 		{
-			skipped_actives++;
+			skipped_entities++;
 		}
 	}
 
-	Item *item_ptr;
-	int skipped_items = 0;
-	for(int i = 0; i < state->item_count + skipped_items; i++)
-	{
-		item_ptr = itemGet(i);
-		if(item_ptr)
-		{
-			float distance = 
-				vector2fDistance(item_ptr->position, 
-								 player_creature->position);
-
-			if(item_ptr->level == state->current_level &&
-			   item_ptr->state == ITEM_STATE_GROUND &&
-			   distance < min_distance && 
-			   distance < 100)
-			{
-				min_id = item_ptr->id;
-				min_type = item_ptr->object_type;
-				min_distance = distance;
-			}
-		}
-		else
-		{
-			skipped_items++;
-		}
-	}
-
-	ui_state->highlight_type = min_type;
 	ui_state->highlight_id = min_id;
-	
-	if(input->attack.key_press && !player_creature->animation_lock)
+	Entity *entity_highlight = entityGet(min_id);	
+	int attack = 0;
+
+	if(!creature_ptr->animation_lock)
 	{
-		creatureStartAttack(player_creature);
+		Vector2f attack_direction = vector2fZero();
+		if(input->attack_up.key_press)
+		{
+			attack_direction = vector2fPlus(attack_direction, vector2f(0, -1));
+			attack = 1;
+		}
+		if(input->attack_down.key_press)
+		{
+			attack_direction = vector2fPlus(attack_direction, vector2f(0, 1));
+			attack = 1;
+		}
+		if(input->attack_left.key_press)
+		{
+			attack_direction = vector2fPlus(attack_direction, vector2f(-1, 0));
+			attack = 1;
+		}
+		if(input->attack_right.key_press)
+		{
+			attack_direction = vector2fPlus(attack_direction, vector2f(1, 0));
+			attack = 1;
+		}
+		if(attack)
+		{
+			creature_ptr->forward_direction = vector2fNormalize(attack_direction);
+			creatureStartAttack(creature_ptr);
+		}
 	}
 
-	if(input->use.key_press && !player_creature->animation_lock)
+	if(min_id != -1 && input->use.key_press && !creature_ptr->animation_lock)
 	{
-		if(ui_state->highlight_type == OBJECT_TYPE_ACTIVE)
+		if(entity_highlight->has_active)
 		{
 			activeStart(ui_state->highlight_id);
 		}
-		else if(ui_state->highlight_type == OBJECT_TYPE_ITEM)
+		else if(entity_highlight->has_item)
 		{
 			int e = itemPickUp(ui_state->highlight_id);
 			if(e == -1)
 			{
 				printf("Inventory full!\n");
 			}
+			else
+			{
+				ui_state->highlight_id = -1;
+			}
 		}
 	}	
 
-	if(player_creature->animation_state != ANIMATION_STATE_IDLE)
+	if(creature_ptr->animation_state != ANIMATION_STATE_IDLE)
 		state->player_action = 1;
 	else
 		state->player_action = 0;		
 }
 
-Creature *creatureGetPlayer()
-{
-	PersistentGameState *state = memoryGetPersistentGameState();
-	return creatureGet(state->player.creature_id);
-}
-
 void creatureProcessEnemy(int id)
 {
 	PersistentGameState *state = memoryGetPersistentGameState();
-	Creature *player_creature = creatureGet(state->player.creature_id);
-	Creature *enemy_creature = creatureGet(id);
+	Entity *player_entity = entityGet(state->player.creature_id);
+	Creature *player_creature = &player_entity->creature;
+	Transform *player_transform = &player_entity->transform;
+	Entity *enemy_entity = entityGet(id);
+	Creature *enemy_creature = &enemy_entity->creature;
+	Transform *enemy_transform = &enemy_entity->transform;
 
 	if(!player_creature)
 	{
@@ -225,45 +238,47 @@ void creatureProcessEnemy(int id)
 		return;
 	}	
 	Vector2f position_delta = 
-		vector2fMinus(player_creature->position, enemy_creature->position);
+		vector2fMinus(player_transform->position, enemy_transform->position);
 
-	Vector2f move_delta;
+	Vector2f move_delta = vector2fZero();
+	float distance_to_player = vector2fMagnitude(position_delta); 
 
-	if(vector2fMagnitude(position_delta) < enemy_creature->vision_range)
+	if(!enemy_creature->animation_lock)
 	{
+		if(distance_to_player < enemy_creature->vision_range)
+		{
+			if(enemy_creature->animation_state != ANIMATION_STATE_ATTACK &&
+			   distance_to_player < 50)
+			{
+				creatureStartAttack(enemy_creature);
+			}
+			else
+			{
+				enemy_creature->forward_direction =
+					vector2fNormalize(position_delta);
 
-		enemy_creature->forward_direction = vector2fNormalize(position_delta);
+				move_delta = vector2fMultiply
+				(
+					enemy_creature->forward_direction,
+					enemy_creature->movement_speed * state->game_delta_time
+				);
 
-		move_delta = vector2fMultiply
-		(
-			enemy_creature->forward_direction,
-			enemy_creature->movement_speed * state->game_delta_time
-		);
-
-		transformTryMove
-		(
-			(Transform *)enemy_creature,
-			move_delta
-		);
-	}
-	else
-	{
-		move_delta = vector2fZero();
+				transformTryMove
+				(
+					enemy_transform,
+					move_delta
+				);
+			}
+		}
 	}
 
-	if(move_delta.x != 0 || move_delta.y != 0)
-	{
-		enemy_creature->animation_state = ANIMATION_STATE_WALK;
-	}
-	else
-	{
-		enemy_creature->animation_state = ANIMATION_STATE_IDLE;
-	}
 }
 
 void creatureProcess(int id)
 {
-	Creature *creature_ptr = creatureGet(id);
+	GraphicsState *sdl_state = memoryGetGraphicsState();
+	Entity *entity_ptr = entityGet(id);
+	Creature *creature_ptr = &entity_ptr->creature;
 	switch(creature_ptr->type)
 	{
 		case CREATURE_PLAYER:
@@ -278,72 +293,33 @@ void creatureProcess(int id)
 	};
 
 	creatureUpdateAnimation(creature_ptr);
-}
 
-void creatureProcessList()
-{
-	PersistentGameState *state = memoryGetPersistentGameState();
-	Creature *creature_ptr;
-	int creatures_skipped = 0;
-	
-	for(int i = 0; i < state->creature_count + creatures_skipped; i++)
+	if(creature_ptr->animation_state == ANIMATION_STATE_ATTACK)
 	{
-		creature_ptr = creatureGet(i);
-		if(transformMemoryOutOfBounds(i, OBJECT_TYPE_CREATURE))
-		{
-			break;	
-		}
-		if(creature_ptr)
-		{
-			if(creature_ptr->level == state->current_level)
-			{
-				creatureProcess(i);
-			}
-		}
-		else
-		{
-			creatures_skipped++;
-		}
+		Vector2f hitbox_position = vector2fPlus(entity_ptr->transform.position, 
+								   vector2fMultiply(creature_ptr->forward_direction, 
+													creature_ptr->attack_hitbox_range));
+		
+		SDL_SetRenderDrawColor(sdl_state->renderer, 255, 100, 50, 255);
+		SDL_FRect rect;
+		rect.x = hitbox_position.x;
+		rect.y = hitbox_position.y;
+		rect.w = creature_ptr->attack_hitbox_size.w;
+		rect.h = creature_ptr->attack_hitbox_size.h;
+		rect.x -= rect.w/2;
+		rect.y -= rect.h/2;
+		rect = graphicsApplyCamera(rect);
+
+		graphicsDebugDrawRect(rect.x, rect.y, rect.w, rect.h);
 	}
 }
 
-int creatureCheckCollision(Transform *transform)
-{
-	PersistentGameState *state = memoryGetPersistentGameState();
-	Creature *creatures = memoryGetCreatures();
-	int collision = 0;
-
-	int creatures_skipped = 0;
-	for(int i = 0; i < state->creature_count + creatures_skipped; i++)
-	{
-		Creature *creature_ptr = creatureGet(i);
-		if(creature_ptr)
-		{
-			if(creature_ptr->id != transform->id  &&
-			   transformCheckCollision(transform, (Transform *)creature_ptr))
-			{
-				if(transform->object_type == OBJECT_TYPE_CREATURE)
-				{
-					//creatureDamage((Creature *)transform, creature_ptr);
-				}
-				collision = 1;
-			}
-		}
-		else
-		{
-			creatures_skipped++;
-		}
-	}
-
-	return collision;
-}
-
-int creatureDrawHealthbar(Creature *creature)
+void creatureDrawHealthbar(Creature *creature)
 {
 	GraphicsState *sdl_state = memoryGetGraphicsState();
 
 	Vector2f screenPos = 
-		transformGetScreenRenderCenter((Transform *) creature);
+		transformGetScreenRenderCenter(&(creatureGetEntity(creature)->transform));
 
 	SDL_FRect r1;
 
@@ -370,6 +346,41 @@ int creatureDrawHealthbar(Creature *creature)
 	SDL_RenderFillRectF( sdl_state->renderer, &r2 );
 }
 
+void creatureDrawAttackCharge(Creature *creature)
+{
+	GraphicsState *sdl_state = memoryGetGraphicsState();
+
+	Vector2f screenPos = 
+		transformGetScreenRenderCenter(&(creatureGetEntity(creature)->transform));
+
+	SDL_FRect r1;
+
+	// Draw Healthbar box
+	SDL_SetRenderDrawColor( sdl_state->renderer, 0, 0, 0, 255 );
+
+	r1.w = 40;
+	r1.h = 5;
+    r1.x = screenPos.x - r1.w/2;
+	r1.y = screenPos.y - 32 - r1.h/2;
+
+	SDL_RenderFillRectF( sdl_state->renderer, &r1 );
+	
+	SDL_FRect r2;
+
+	// Draw Healthbar 
+	SDL_SetRenderDrawColor( sdl_state->renderer, 245, 40, 40, 255 );
+
+	if(creature->animation_state == ANIMATION_STATE_ATTACK)
+	{
+		r2.w = (int) (38.0 * (creature->animation_timer / creature->attack_duration));
+		r2.h = 3;
+		r2.x = screenPos.x - r1.w/2 + 1;
+		r2.y = screenPos.y - 32 - r2.h/2;
+
+		SDL_RenderFillRectF( sdl_state->renderer, &r2 );
+	}
+}
+
 void creatureStartAttack(Creature *attacker)
 {
 	creatureSetState(attacker, ANIMATION_STATE_ATTACK);
@@ -378,57 +389,74 @@ void creatureStartAttack(Creature *attacker)
 void creatureEndAttack(Creature *attacker)
 {
 	PersistentGameState *state = memoryGetPersistentGameState();
-	Creature *creatures = memoryGetCreatures();
+	GraphicsState *sdl_state = memoryGetGraphicsState();
+	Entity *entity_attacker = creatureGetEntity(attacker);
+	Transform *attacker_transform = &entity_attacker->transform;
 
-	int creatures_skipped = 0;
-	Transform attack_hitbox;
-	Vector2f hitbox_position = attacker->position;
-	
-	// NOTE(filip): Hardcoded attack collision
-	Vector2f hitbox_collider = 
-	{
-		200,
-		200
-	};
-	
-	hitbox_position = transformGetRenderCenter((Transform *)attacker);
+	int entities_skipped = 0;
 
-	attack_hitbox.level = attacker->level;
-	attack_hitbox.position = hitbox_position;
-	attack_hitbox.collider = hitbox_collider;	
-	attack_hitbox.render = vector2fZero();
-	attack_hitbox.trigger = vector2fZero();
+
+	Vector2f hitbox_position = vector2fPlus(attacker_transform->position, 
+							   vector2fMultiply(attacker->forward_direction, 
+								   		        attacker->attack_hitbox_range));
 	
-	graphicsDebugDrawTransform(&attack_hitbox);
+	SDL_SetRenderDrawColor(sdl_state->renderer, 255, 0, 0, 255);
+	SDL_FRect rect;
+	rect.x = hitbox_position.x;
+	rect.y = hitbox_position.y;
+	rect.w = attacker->attack_hitbox_size.w;
+	rect.h = attacker->attack_hitbox_size.h;
+	rect.x -= rect.w/2;
+	rect.y -= rect.h/2;
+	rect = graphicsApplyCamera(rect);
+
+	graphicsDebugDrawRect(rect.x, rect.y, rect.w, rect.h);
+	temporaryAnimationCreateMeleeSwing(hitbox_position, 
+			  						   attacker_transform->level, 
+									   vector2fGetAngle(attacker->forward_direction));
 
 	// Check all creatures for attack hitbox collision
-	for(int i = 0; i < state->creature_count + creatures_skipped; i++)
+	for(int i = 0; i < state->entity_count + entities_skipped; i++)
 	{
-		Creature *creature_ptr = creatureGet(i);
-		if(creature_ptr)
+		Entity *entity_ptr = entityGet(i);
+		if(entity_ptr)
 		{
-			if(attacker->id != creature_ptr->id &&
-			   transformCheckCollision(&attack_hitbox, 
-				   		  (Transform *)creature_ptr))
+			if(entity_attacker->id != entity_ptr->id &&
+			   transformCheckRectCollision(hitbox_position, 
+				   						   attacker->attack_hitbox_size,
+				  						   attacker_transform->level, 
+				   		   				   &entity_ptr->transform) &&
+			   entity_ptr->has_creature)
 			{
-				creatureDamage(attacker, creature_ptr);		
+				creatureDamage(attacker, &entity_ptr->creature);		
+				audioPlaySound(2, 0);
+				entityKnockback(entity_ptr, entity_attacker->creature.damage * 30, 
+								0.3, entity_attacker->creature.forward_direction);
 			}
 		}
 		else
 		{
-			creatures_skipped ++;
+			entities_skipped ++;
 		}
 	}
+	audioPlaySound(0, 0);
 
 }
 
 void creatureDamage(Creature* attacker, Creature* target)
 {
 	PersistentGameState *state = memoryGetPersistentGameState();
-	target->health = target->health - creatureGet(attacker->id)->damage;
+	target->health = target->health - attacker->damage;
 	if(target->health <= 0)
 	{
-		creatureDelete(target->id);
+		entityMarkDelete(creatureGetEntity(target)->id);
+		Vector2f splatter_position = creatureGetEntity(target)->transform.position;
+		splatter_position = vector2fPlus(splatter_position, 
+							vector2fMultiply(attacker->forward_direction, 25));
+		temporaryAnimationCreateBloodSplatter(splatter_position,
+											  creatureGetEntity(target)->transform.level,
+											  vector2fGetAngle(attacker->forward_direction) - 20);
+		state->kill_count++;
 	}
 }
 
@@ -441,7 +469,8 @@ void creatureSetState(Creature *creature_ptr, int state)
 void creatureUpdateAnimation(Creature *creature_ptr)
 {
 	PersistentGameState *state = memoryGetPersistentGameState();
-	
+	Entity *creature_entity = creatureGetEntity(creature_ptr);
+	Animation *animation_ptr = &creature_entity->animation;
 	int clip_index;
 	switch(creature_ptr->animation_state)
 	{
@@ -455,8 +484,8 @@ void creatureUpdateAnimation(Creature *creature_ptr)
 
 			clip_index = clip_index % 8 + 1;
 
-			creature_ptr->clip_col = clip_index;
-			creature_ptr->clip_row = 
+			animation_ptr->clip_col = clip_index;
+			animation_ptr->clip_row = 
 				0 * 4 + 
 				vectorGetFacingDirection(creature_ptr->forward_direction);
 
@@ -472,8 +501,8 @@ void creatureUpdateAnimation(Creature *creature_ptr)
 
 			clip_index = clip_index % 2 + 1;
 
-			creature_ptr->clip_col = clip_index;
-			creature_ptr->clip_row = 
+			animation_ptr->clip_col = clip_index;
+			animation_ptr->clip_row = 
 				0 * 4 + 
 				vectorGetFacingDirection(creature_ptr->forward_direction);
 			break;
@@ -484,14 +513,14 @@ void creatureUpdateAnimation(Creature *creature_ptr)
 			creature_ptr->animation_timer += state->game_delta_time;
 			creature_ptr->animation_lock = 1;
 
-			if(creature_ptr->animation_timer >= 0.4)
+			if(creature_ptr->animation_timer >= creature_ptr->attack_duration)
 			{
 				creature_ptr->animation_state = ANIMATION_STATE_IDLE;
 				creature_ptr->animation_lock = 0;
 				creatureEndAttack(creature_ptr);
 			}
-			creature_ptr->clip_col = clip_index;
-			creature_ptr->clip_row = 
+			animation_ptr->clip_col = clip_index;
+			animation_ptr->clip_row = 
 				0 * 4 + 
 				vectorGetFacingDirection(creature_ptr->forward_direction);
 			break;
@@ -513,6 +542,7 @@ void creatureRefreshStats(Creature *creature_ptr)
 	REFRESH_STAT(encumbrance);
 }
 
+/*
 void creatureDrawList()
 {
 	PersistentGameState *state = memoryGetPersistentGameState();
@@ -537,4 +567,4 @@ void creatureDrawList()
 			creatures_skipped++;
 		}
 	}
-}
+}*/

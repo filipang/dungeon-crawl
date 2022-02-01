@@ -27,6 +27,9 @@ tabnew
 tabnew
 tabnew
 tabnew
+tabnew
+tabnew
+tabnew
 tabrewind
 edit transform.c
 set splitbelow splitright
@@ -41,10 +44,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 117 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 64 + 91) / 182)
 argglobal
 balt utils.h
 setlocal fdm=manual
@@ -56,11 +57,11 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 386 - ((51 * winheight(0) + 26) / 52)
+let s:l = 165 - ((24 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 386
+keepjumps 165
 normal! 0
 wincmd w
 argglobal
@@ -75,17 +76,180 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 67 - ((51 * winheight(0) + 26) / 52)
+let s:l = 32 - ((31 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 67
+keepjumps 32
+normal! 09|
+wincmd w
+exe 'vert 1resize ' . ((&columns * 117 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 64 + 91) / 182)
+tabnext
+edit animation.c
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 87 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 94 + 91) / 182)
+argglobal
+balt animation.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 51 - ((21 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 51
+normal! 024|
+wincmd w
+argglobal
+if bufexists("animation.h") | buffer animation.h | else | edit animation.h | endif
+balt animation.c
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 19 - ((18 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 19
 normal! 0
 wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 87 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 94 + 91) / 182)
+tabnext
+edit temporary_animation.c
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 87 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 94 + 91) / 182)
+argglobal
+balt temporary_animation.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 88 - ((50 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 88
+normal! 0
+wincmd w
+argglobal
+if bufexists("temporary_animation.h") | buffer temporary_animation.h | else | edit temporary_animation.h | endif
+balt temporary_animation.c
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 21 - ((20 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 21
+normal! 013|
+wincmd w
+exe 'vert 1resize ' . ((&columns * 87 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 94 + 91) / 182)
+tabnext
+edit entity.c
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 87 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 94 + 91) / 182)
+argglobal
+balt entity.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 268 - ((49 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 268
+normal! 0
+wincmd w
+argglobal
+if bufexists("entity.h") | buffer entity.h | else | edit entity.h | endif
+balt entity.c
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 50 - ((46 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 50
+normal! 034|
+wincmd w
+exe 'vert 1resize ' . ((&columns * 87 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 94 + 91) / 182)
 tabnext
 edit game.c
 set splitbelow splitright
@@ -100,10 +264,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 102 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 79 + 91) / 182)
 argglobal
 balt game.h
 setlocal fdm=manual
@@ -115,11 +277,11 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 266 - ((51 * winheight(0) + 26) / 52)
+let s:l = 44 - ((36 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 266
+keepjumps 44
 normal! 0
 wincmd w
 argglobal
@@ -134,17 +296,15 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 16 - ((15 * winheight(0) + 26) / 52)
+let s:l = 68 - ((42 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 16
-normal! 021|
+keepjumps 68
+normal! 020|
 wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 102 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 79 + 91) / 182)
 tabnext
 edit active.c
 set splitbelow splitright
@@ -159,10 +319,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 164 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 17 + 91) / 182)
 argglobal
 balt utils.h
 setlocal fdm=manual
@@ -174,11 +332,11 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 42 - ((15 * winheight(0) + 26) / 52)
+let s:l = 7 - ((6 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 42
+keepjumps 7
 normal! 0
 wincmd w
 argglobal
@@ -193,17 +351,15 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 57 - ((50 * winheight(0) + 26) / 52)
+let s:l = 31 - ((30 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 57
+keepjumps 31
 normal! 0
 wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 164 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 17 + 91) / 182)
 tabnext
 edit map.c
 set splitbelow splitright
@@ -218,10 +374,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 131 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 50 + 91) / 182)
 argglobal
 balt utils.h
 setlocal fdm=manual
@@ -233,11 +387,11 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 73 - ((36 * winheight(0) + 26) / 52)
+let s:l = 204 - ((33 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 73
+keepjumps 204
 normal! 0
 wincmd w
 argglobal
@@ -252,17 +406,15 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 42 - ((41 * winheight(0) + 26) / 52)
+let s:l = 24 - ((23 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 42
-normal! 0
+keepjumps 24
+normal! 020|
 wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 131 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 50 + 91) / 182)
 tabnext
 edit item.c
 set splitbelow splitright
@@ -277,10 +429,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 116 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 65 + 91) / 182)
 argglobal
 balt utils.h
 setlocal fdm=manual
@@ -292,12 +442,12 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 107 - ((51 * winheight(0) + 26) / 52)
+let s:l = 137 - ((27 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 107
-normal! 0
+keepjumps 137
+normal! 039|
 wincmd w
 argglobal
 if bufexists("item.h") | buffer item.h | else | edit item.h | endif
@@ -311,17 +461,15 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 26) / 52)
+let s:l = 51 - ((38 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 1
-normal! 0
+keepjumps 51
+normal! 010|
 wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 116 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 65 + 91) / 182)
 tabnext
 edit creature.c
 set splitbelow splitright
@@ -336,10 +484,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 74 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 74 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 93 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 88 + 91) / 182)
 argglobal
 balt \'
 setlocal fdm=manual
@@ -351,12 +497,12 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 524 - ((35 * winheight(0) + 26) / 52)
+let s:l = 289 - ((24 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 524
-normal! 041|
+keepjumps 289
+normal! 017|
 wincmd w
 argglobal
 if bufexists("creature.h") | buffer creature.h | else | edit creature.h | endif
@@ -370,17 +516,235 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 63 - ((36 * winheight(0) + 26) / 52)
+let s:l = 51 - ((33 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 63
-normal! 019|
+keepjumps 51
+normal! 026|
 wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 74 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 74 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 93 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 88 + 91) / 182)
+tabnext
+edit memory.c
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 105 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 76 + 91) / 182)
+argglobal
+balt utils.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 127 - ((51 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 127
+normal! 0
+wincmd w
+argglobal
+if bufexists("memory.h") | buffer memory.h | else | edit memory.h | endif
+balt memory.c
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 36 - ((29 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 36
+normal! 013|
+wincmd w
+exe 'vert 1resize ' . ((&columns * 105 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 76 + 91) / 182)
+tabnext
+edit input.c
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 118 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 63 + 91) / 182)
+argglobal
+balt input.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 104 - ((27 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 104
+normal! 0
+wincmd w
+argglobal
+if bufexists("input.h") | buffer input.h | else | edit input.h | endif
+balt input.c
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 24 - ((18 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 24
+normal! 023|
+wincmd w
+exe 'vert 1resize ' . ((&columns * 118 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 63 + 91) / 182)
+tabnext
+edit graphics.c
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 116 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 65 + 91) / 182)
+argglobal
+balt utils.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 94 - ((22 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 94
+normal! 041|
+wincmd w
+argglobal
+if bufexists("graphics.h") | buffer graphics.h | else | edit graphics.h | endif
+balt utils.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 72 - ((49 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 72
+normal! 0
+wincmd w
+exe 'vert 1resize ' . ((&columns * 116 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 65 + 91) / 182)
+tabnext
+edit audio.c
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 105 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 76 + 91) / 182)
+argglobal
+balt audio.h
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 31 - ((27 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 31
+normal! 047|
+wincmd w
+argglobal
+if bufexists("audio.h") | buffer audio.h | else | edit audio.h | endif
+balt audio.c
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 22 - ((21 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 22
+normal! 032|
+wincmd w
+exe 'vert 1resize ' . ((&columns * 105 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 76 + 91) / 182)
 tabnext
 edit /usr/include/SDL2/SDL_render.h
 set splitbelow splitright
@@ -402,245 +766,13 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 875 - ((15 * winheight(0) + 26) / 53)
+let s:l = 1158 - ((51 * winheight(0) + 26) / 53)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 875
-normal! 03|
+keepjumps 1158
+normal! 0
 lcd ~/Work/dungeon-crawl
-tabnext
-edit ~/Work/dungeon-crawl/memory.c
-set splitbelow splitright
-wincmd _ | wincmd |
-vsplit
-1wincmd h
-wincmd w
-set nosplitbelow
-set nosplitright
-wincmd t
-set winminheight=0
-set winheight=1
-set winminwidth=0
-set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 77 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 71 + 85) / 170)
-argglobal
-balt ~/Work/dungeon-crawl/utils.h
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let s:l = 137 - ((51 * winheight(0) + 26) / 52)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 137
-normal! 0
-wincmd w
-argglobal
-if bufexists("~/Work/dungeon-crawl/memory.h") | buffer ~/Work/dungeon-crawl/memory.h | else | edit ~/Work/dungeon-crawl/memory.h | endif
-balt ~/Work/dungeon-crawl/memory.c
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let s:l = 69 - ((50 * winheight(0) + 26) / 52)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 69
-normal! 0
-wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 77 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 71 + 85) / 170)
-tabnext
-edit ~/Work/dungeon-crawl/input.c
-set splitbelow splitright
-wincmd _ | wincmd |
-vsplit
-1wincmd h
-wincmd w
-set nosplitbelow
-set nosplitright
-wincmd t
-set winminheight=0
-set winheight=1
-set winminwidth=0
-set winwidth=1
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe 'vert 2resize ' . ((&columns * 88 + 85) / 170)
-argglobal
-balt ~/Work/dungeon-crawl/input.h
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let s:l = 21 - ((20 * winheight(0) + 30) / 60)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 21
-normal! 0
-wincmd w
-argglobal
-if bufexists("~/Work/dungeon-crawl/input.h") | buffer ~/Work/dungeon-crawl/input.h | else | edit ~/Work/dungeon-crawl/input.h | endif
-balt ~/Work/dungeon-crawl/input.c
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let s:l = 48 - ((47 * winheight(0) + 30) / 60)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 48
-normal! 05|
-wincmd w
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe 'vert 2resize ' . ((&columns * 88 + 85) / 170)
-tabnext
-edit ~/Work/dungeon-crawl/graphics.c
-set splitbelow splitright
-wincmd _ | wincmd |
-vsplit
-1wincmd h
-wincmd w
-set nosplitbelow
-set nosplitright
-wincmd t
-set winminheight=0
-set winheight=1
-set winminwidth=0
-set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
-argglobal
-balt ~/Work/dungeon-crawl/utils.h
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let s:l = 410 - ((51 * winheight(0) + 26) / 52)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 410
-normal! 0
-wincmd w
-argglobal
-if bufexists("~/Work/dungeon-crawl/graphics.h") | buffer ~/Work/dungeon-crawl/graphics.h | else | edit ~/Work/dungeon-crawl/graphics.h | endif
-balt ~/Work/dungeon-crawl/utils.h
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let s:l = 72 - ((28 * winheight(0) + 26) / 52)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 72
-normal! 018|
-wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
-tabnext
-edit ~/Work/dungeon-crawl/kiss_sdl/kiss_general.c
-set splitbelow splitright
-wincmd _ | wincmd |
-vsplit
-1wincmd h
-wincmd w
-set nosplitbelow
-set nosplitright
-wincmd t
-set winminheight=0
-set winheight=1
-set winminwidth=0
-set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 80 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 68 + 85) / 170)
-argglobal
-balt ~/Work/dungeon-crawl/kiss_sdl/kiss_sdl.h
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let s:l = 248 - ((51 * winheight(0) + 26) / 52)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 248
-normal! 0
-wincmd w
-argglobal
-if bufexists("~/Work/dungeon-crawl/kiss_sdl/kiss_sdl.h") | buffer ~/Work/dungeon-crawl/kiss_sdl/kiss_sdl.h | else | edit ~/Work/dungeon-crawl/kiss_sdl/kiss_sdl.h | endif
-balt ~/Work/dungeon-crawl/kiss_sdl/kiss_general.c
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let s:l = 314 - ((30 * winheight(0) + 26) / 52)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 314
-normal! 010|
-wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 80 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 68 + 85) / 170)
 tabnext
 edit ~/Work/dungeon-crawl/ui.c
 set splitbelow splitright
@@ -655,10 +787,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 131 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 50 + 91) / 182)
 argglobal
 balt ~/Work/dungeon-crawl/ui.h
 setlocal fdm=manual
@@ -670,11 +800,11 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 163 - ((51 * winheight(0) + 26) / 52)
+let s:l = 110 - ((27 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 163
+keepjumps 110
 normal! 0
 wincmd w
 argglobal
@@ -689,17 +819,15 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 21 - ((20 * winheight(0) + 26) / 52)
+let s:l = 2 - ((1 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 21
-normal! 026|
+keepjumps 2
+normal! 0
 wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 131 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 50 + 91) / 182)
 tabnext
 edit ~/Work/dungeon-crawl/utils.c
 set splitbelow splitright
@@ -714,10 +842,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 77 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 71 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 164 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 17 + 91) / 182)
 argglobal
 balt ~/Work/dungeon-crawl/utils.h
 setlocal fdm=manual
@@ -729,11 +855,11 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 97 - ((49 * winheight(0) + 26) / 52)
+let s:l = 2 - ((1 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 97
+keepjumps 2
 normal! 0
 wincmd w
 argglobal
@@ -748,17 +874,20 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 25 - ((24 * winheight(0) + 26) / 52)
+let s:l = 22 - ((21 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 25
-normal! 06|
+keepjumps 22
+let s:c = 24 - ((0 * winwidth(0) + 8) / 17)
+if s:c > 0
+  exe 'normal! ' . s:c . '|zs' . 24 . '|'
+else
+  normal! 024|
+endif
 wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 77 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 71 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 164 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 17 + 91) / 182)
 tabnext
 edit ~/Work/dungeon-crawl/vector.c
 set splitbelow splitright
@@ -773,10 +902,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 164 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 17 + 91) / 182)
 argglobal
 balt ~/Work/dungeon-crawl/vector.h
 setlocal fdm=manual
@@ -788,11 +915,11 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 26 - ((15 * winheight(0) + 26) / 52)
+let s:l = 3 - ((2 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 26
+keepjumps 3
 normal! 0
 wincmd w
 argglobal
@@ -807,17 +934,15 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 79 - ((43 * winheight(0) + 26) / 52)
+let s:l = 43 - ((33 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 79
+keepjumps 43
 normal! 0
 wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 164 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 17 + 91) / 182)
 tabnext
 edit ~/Work/dungeon-crawl/tests.c
 set splitbelow splitright
@@ -832,10 +957,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 164 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 17 + 91) / 182)
 argglobal
 balt ~/Work/dungeon-crawl/tests.h
 setlocal fdm=manual
@@ -847,12 +970,12 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 105 - ((51 * winheight(0) + 26) / 52)
+let s:l = 16 - ((15 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 105
-normal! 0
+keepjumps 16
+normal! 014|
 wincmd w
 argglobal
 if bufexists("~/Work/dungeon-crawl/tests.h") | buffer ~/Work/dungeon-crawl/tests.h | else | edit ~/Work/dungeon-crawl/tests.h | endif
@@ -866,17 +989,15 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 21 - ((20 * winheight(0) + 26) / 52)
+let s:l = 17 - ((16 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 21
-normal! 04|
+keepjumps 17
+normal! 0
 wincmd w
-exe '1resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 1resize ' . ((&columns * 81 + 85) / 170)
-exe '2resize ' . ((&lines * 52 + 31) / 63)
-exe 'vert 2resize ' . ((&columns * 67 + 85) / 170)
+exe 'vert 1resize ' . ((&columns * 164 + 91) / 182)
+exe 'vert 2resize ' . ((&columns * 17 + 91) / 182)
 tabnext
 edit ~/Work/dungeon-crawl/build.sh
 set splitbelow splitright
@@ -903,42 +1024,50 @@ if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
 keepjumps 1
-normal! 09|
-tabnext 9
+normal! 0
+tabnext 12
 set stal=1
 badd +1 ~/Work/dungeon-crawl/transform.c
+badd +1 ~/Work/dungeon-crawl/animation.c
+badd +83 ~/Work/dungeon-crawl/temporary_animation.c
+badd +1 ~/Work/dungeon-crawl/entity.c
 badd +1 ~/Work/dungeon-crawl/game.c
 badd +1 ~/Work/dungeon-crawl/active.c
 badd +1 ~/Work/dungeon-crawl/map.c
 badd +1 ~/Work/dungeon-crawl/item.c
 badd +1 ~/Work/dungeon-crawl/creature.c
-badd +1 /usr/include/SDL2/SDL_render.h
-badd +13 ~/Work/dungeon-crawl/memory.c
-badd +13 ~/Work/dungeon-crawl/input.c
+badd +1 ~/Work/dungeon-crawl/memory.c
+badd +1 ~/Work/dungeon-crawl/input.c
 badd +1 ~/Work/dungeon-crawl/graphics.c
-badd +106 ~/Work/dungeon-crawl/kiss_sdl/kiss_general.c
+badd +1 ~/Work/dungeon-crawl/audio.c
+badd +1 /usr/include/SDL2/SDL_render.h
 badd +1 ~/Work/dungeon-crawl/ui.c
-badd +20 ~/Work/dungeon-crawl/utils.c
+badd +1 ~/Work/dungeon-crawl/utils.c
 badd +1 ~/Work/dungeon-crawl/vector.c
 badd +1 ~/Work/dungeon-crawl/tests.c
 badd +1 ~/Work/dungeon-crawl/build.sh
 badd +25 ~/Work/dungeon-crawl/utils.h
 badd +35 ~/Work/dungeon-crawl/transform.h
 badd +1 ~/Work/dungeon-crawl/transform_data.h
+badd +1 ~/Work/dungeon-crawl/animation.h
+badd +1 ~/Work/dungeon-crawl/temporary_animation.h
+badd +1 ~/Work/dungeon-crawl/entity.h
 badd +1 ~/Work/dungeon-crawl/game.h
-badd +45 ~/Work/dungeon-crawl/active.h
+badd +1 ~/Work/dungeon-crawl/active.h
 badd +42 ~/Work/dungeon-crawl/map.h
 badd +41 ~/Work/dungeon-crawl/item.h
 badd +19 ~/Work/dungeon-crawl/\'
-badd +59 ~/Work/dungeon-crawl/creature.h
-badd +1 /usr/include/SDL2
+badd +1 ~/Work/dungeon-crawl/creature.h
 badd +20 ~/Work/dungeon-crawl/memory.h
 badd +42 ~/Work/dungeon-crawl/input.h
 badd +40 ~/Work/dungeon-crawl/graphics.h
-badd +87 ~/Work/dungeon-crawl/kiss_sdl/kiss_sdl.h
+badd +1 ~/Work/dungeon-crawl/audio.h
+badd +1 /usr/include/SDL2
 badd +13 ~/Work/dungeon-crawl/ui.h
 badd +1 ~/Work/dungeon-crawl/vector.h
 badd +1 ~/Work/dungeon-crawl/tests.h
+badd +196 ~/Work/dungeon-crawl/kiss_sdl/kiss_general.c
+badd +1 ~/Work/dungeon-crawl/kiss_sdl/kiss_sdl.h
 badd +13 ~/Work/dungeon-crawl/transform_data.c
 badd +1 ~/.vimrc
 badd +172 ~/Work/dungeon-crawl/text.c
@@ -963,13 +1092,13 @@ badd +14 ~/Work/dungeon-crawl/shader.frag
 badd +11 ~/Work/dungeon-crawl/shader.vert
 badd +1 ~/Work/dungeon-crawl/memoryc.
 badd +59 /usr/include/SDL2/SDL.h
-badd +1 ~/Work/dungeon-crawl
 badd +45 ~/Work/dungeon-crawl/kiss_sdl/kiss_LICENSE
 badd +46 ~/Work/dungeon-crawl/kiss_sdl/kiss_draw.c
 badd +27 ~/Work/dungeon-crawl/kiss_sdl/kiss_example1.c
 badd +64 ~/Work/dungeon-crawl/kiss_sdl/kiss_example2.c
 badd +1321 ~/Work/dungeon-crawl/kiss_sdl/kiss_font.ttf
 badd +271 ~/Work/dungeon-crawl/kiss_sdl/kiss_widgets.c
+badd +1 ~/Work/dungeon-crawl/Animation
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
 endif

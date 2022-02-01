@@ -22,83 +22,49 @@
 
 typedef struct Creature
 {
-	union
-	{
-		Transform transform;
-		struct
-		{
-			int created;
-			int id;
-			int object_type;
-			int level;
-			int frame_count;
-			int clip_row;
-			int clip_col;
-			
-			Vector2f position;
-			Vector2f render;
-			Vector2f collider;
-			Vector2f trigger;
-		};
-	};
-
 	int type;
-
 	float base_max_health;
 	float base_damage;
 	float base_movement_speed;
 	float base_vision_range;
 	float base_stealth;
 	float base_encumbrance;
-
 	float modifier_max_health;
 	float modifier_damage;
 	float modifier_movement_speed;
 	float modifier_vision_range;
 	float modifier_stealth;
 	float modifier_encumbrance;
-
 	float max_health;
 	float damage;
 	float movement_speed;
 	float vision_range;
 	float stealth;
 	float encumbrance;
-
 	float health;
-
 	int   animation_state;
 	int   animation_lock;
 	float animation_timer;
-
+	int   animation_attack_id;
 	Vector2f forward_direction;
+	float attack_range;
+	float attack_duration;
+	Vector2f attack_hitbox_size;
+	float attack_hitbox_range;
 } Creature;
 
-int 	  creatureCreate();
-void 	  creatureDelete(int id);
-Creature *creatureGet(int id);
-
-void creatureCreatePlayer(Vector2f position);
-Creature *creatureGetPlayer();
-void creatureCreateEnemy(Vector2f position);
-
-// Damages target creature using attacker stats
+void creatureCreatePlayer(Vector2f position, int level);
+void creatureCreateEnemy(Vector2f position, int level);
 void creatureDamage(Creature* attacker, Creature* target);
-// Starts the attack animation
 void creatureStartAttack(Creature* attacker);
-// Checks which creatures are colliding with the attack hitbox and attacks them
 void creatureEndAttack(Creature* attacker);
-// Checks if a given transform collides with any creature
-int  creatureCheckCollision(Transform *transform);
-// Draws a creature healthbar
-int  creatureDrawHealthbar(Creature *creature);
-
+int creatureCheckCollision(struct Entity *entity);
+void creatureDrawHealthbar(Creature *creature);
+void creatureDrawAttackCharge(Creature *creature);
 void creatureProcessPlayer();
 void creatureProcessEnemy(int id);
 void creatureProcess(int id);
 void creatureProcessList();
-
 void creatureSetState(Creature *creature_ptr, int state);
 void creatureUpdateAnimation(Creature *creature_ptr);
-void creatureDrawList();
 #endif

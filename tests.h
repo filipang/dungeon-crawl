@@ -11,11 +11,7 @@
 *******************************************************************************/
 
 int testCreateFullCreatureList();
-
 int testCreateFullItemList();
-
 int testCreateFullActiveList();
-
 int testCreateFullMapList();
-
 void testBatch1();

@@ -19,39 +19,14 @@
 
 typedef struct Active
 {
-	union
-	{
-		Transform transform;
-		struct
-		{
-			int created;
-			int id;
-			int object_type;
-			int level;
-			int frame_count;
-			int clip_row;
-			int clip_col;
-			
-			Vector2f position;
-			Vector2f render;
-			Vector2f collider;
-			Vector2f trigger;
-		};
-	};
-
 	int active_action;
 } Active;
 
-int 	activeCreate();
-void 	activeDelete(int id);
-Active* activeGet(int id);
 
+struct Entity *activeGetEntity(Active *active);
 void activeStart(int id);
-
-void activeCreateRandomize(Vector2f position);
-void activeCreateStairsUp(Vector2f position);
-void activeCreateStairsDown(Vector2f position);
-
-void activeDrawList();
+void activeCreateRandomize(Vector2f position, int level);
+void activeCreateStairsUp(Vector2f position, int level);
+void activeCreateStairsDown(Vector2f position, int level);
 
 #endif 

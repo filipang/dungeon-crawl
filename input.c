@@ -13,6 +13,7 @@
 void inputProcessState()
 {
 	InputState *input = memoryGetInputState();
+
 	for(int i = 0; i < BUTTON_COUNT; i++)
 	{
 		ButtonState *button = &input->buttons[i];
@@ -39,7 +40,6 @@ void inputProcessState()
 		}
 	}
 	SDL_GetMouseState(&input->mouse_position.x, &input->mouse_position.y);
-	printf("input.c: %d %d\n", input->mouse_position.x, input->mouse_position.y);
 }
 
 void inputProcessEvent()
@@ -49,43 +49,84 @@ void inputProcessEvent()
 	int type = sdl_state->event.type;
 	ButtonState *button = NULL;
 	
-	//Select surfaces based on key press
-	switch( sdl_state->event.key.keysym.sym )
+	if(sdl_state->event.type == SDL_MOUSEBUTTONDOWN ||
+	   sdl_state->event.type == SDL_MOUSEBUTTONUP)
 	{
-		// NOTE(filip): key frame counters can overflow, maybe add a for loop 
-		// 				that caps key frame counters
-		case SDLK_UP:
-		button = &input->move_up;
-		break;
+		switch( sdl_state->event.button.button )
+		{
+			case SDL_BUTTON_LEFT:
+				button = &input->left_click;
+				break;
 
-		case SDLK_DOWN:
-		button = &input->move_down;
-		break;
+			case SDL_BUTTON_RIGHT:
+				button = &input->right_click;
+				break;
+		}
+	}
+	else if(sdl_state->event.type == SDL_KEYDOWN ||
+			sdl_state->event.type == SDL_KEYUP)
+	{
+		switch( sdl_state->event.key.keysym.sym )
+		{
+			// NOTE(filip): MAKE SURE TO UPDATE BUTTON_COUNT WHEN ADDING OR
+			// 				REMOVING BUTTONS
+			case SDLK_UP:
+			button = &input->attack_up;
+			break;
 
-		case SDLK_LEFT:
-		button = &input->move_left;
-		break;
+			case SDLK_DOWN:
+			button = &input->attack_down;
+			break;
 
-		case SDLK_RIGHT:
-		button = &input->move_right;
-		break;
+			case SDLK_LEFT:
+			button = &input->attack_left;
+			break;
 
-		case SDLK_e:
-		button = &input->use;
-		break;
+			case SDLK_RIGHT:
+			button = &input->attack_right;
+			break;
 
-		case SDLK_SPACE:
-		button = &input->attack;
-		break;
+			case SDLK_w:
+			button = &input->move_up;
+			break;
 
-		case SDLK_i:
-		button = &input->inventory;
-		break;
+			case SDLK_s:
+			button = &input->move_down;
+			break;
 
-		default:
-		return;
+			case SDLK_a:
+			button = &input->move_left;
+			break;
+
+			case SDLK_d:
+			button = &input->move_right;
+			break;
+
+			case SDLK_e:
+			button = &input->use;
+			break;
+
+			case SDLK_i:
+			button = &input->inventory;
+			break;
+
+			case SDLK_x:
+			button = &input->debug;
+			break;
+
+			default:
+			return;
+		}
 	}
 
+	if(type == SDL_MOUSEBUTTONDOWN)
+	{
+		button->key_should_hold = 1;
+	}
+	if(type == SDL_MOUSEBUTTONUP)
+	{
+		button->key_should_hold = 0;
+	}
 	if(type == SDL_KEYDOWN)
 	{
 		button->key_should_hold = 1;

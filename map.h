@@ -20,7 +20,6 @@ typedef struct Map
 {
 	int created;
 	int id;
-
 	Vector2i size;
 	double tile_len;
 	unsigned char data[30][30];		
@@ -30,17 +29,13 @@ typedef struct Map
 int  mapCreate();
 void mapDelete(int id);
 Map* mapGet(int id);
-
 Map* mapGetCurrent();
 int  mapGetRandomTile();
 int  mapCheckCollision(Transform *transform, Map* map_ptr);
-
 void mapRandomize();
 void mapLoadTest();
-
 Vector2i mapCoordsToGrid(Vector2f coords);
 Vector2f mapGridToCoords(Vector2i grid);
-
 void mapCacheToTexture();
 void mapDrawCurrent();
 

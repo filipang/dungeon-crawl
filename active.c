@@ -10,24 +10,15 @@
 *
 *******************************************************************************/
 
-int activeCreate()
+struct Entity *activeGetEntity(Active *active)
 {
-	return transformCreate(OBJECT_TYPE_ACTIVE);
-}
-
-void activeDelete(int id)
-{
-	transformDelete(id, OBJECT_TYPE_ACTIVE);
-}
-
-Active* activeGet(int id)
-{
-	return (Active *)transformGet(id, OBJECT_TYPE_ACTIVE);
+	return (Entity *)((void *)active - struct_offset(Entity, active));	
 }
 
 void activeStart(int id)
 {
-	Active *active_ptr = activeGet(id);
+	Entity *entity_active = entityGet(id);
+	Active *active_ptr = &entity_active->active;
 	InputState *input = memoryGetInputState();
 	PersistentGameState *state = memoryGetPersistentGameState();
 	if(input->use.key_press)
@@ -41,7 +32,7 @@ void activeStart(int id)
 
 			case ACTIVE_STAIRS_DOWN:
 				state->current_level++;
-				creatureGetPlayer()->level++;
+				entityGetPlayer()->transform.level++;
 
 				Map *maps = memoryGetMaps();
 				if(!maps[state->current_level].created)
@@ -53,7 +44,7 @@ void activeStart(int id)
 
 			case ACTIVE_STAIRS_UP:
 				state->current_level--;
-				creatureGetPlayer()->level--;
+				entityGetPlayer()->transform.level--;
 
 				break;
 
@@ -65,87 +56,76 @@ void activeStart(int id)
 	input->use.key_press = 0;
 }
 
-void activeCreateRandomize(Vector2f position)
+void activeCreateRandomize(Vector2f position, int level)
 {
-	int index = transformCreate(OBJECT_TYPE_ACTIVE);
-
-	Active *active_ptr = activeGet(index);	
+	int index = entityMarkCreate();
+	Entity *entity_active = entityGet(index);
+	entity_active->has_active = 1;
+	entity_active->has_transform = 1;
+	entity_active->has_animation = 1;
+	entity_active->animation.texture_id = 1;
+	Active *active_ptr = &entity_active->active;	
+	Transform *transform_ptr = &entity_active->transform;
 	active_ptr->active_action = ACTIVE_RANDOMIZE_MAP;
 	Map *map_ptr = mapGetCurrent();
 
+	transform_ptr->position = position; 
+	transform_ptr->level = level;
 
-	active_ptr->position = position; 
+	transform_ptr->collider.w = 64;
+	transform_ptr->collider.h = 64;
 
-	active_ptr->collider.w = 64;
-	active_ptr->collider.h = 64;
-
-	active_ptr->render.w = 64;
-	active_ptr->render.h = 64;
+	transform_ptr->render.w = 64;
+	transform_ptr->render.h = 64;
 }
 
-void activeCreateStairsUp(Vector2f position)
+void activeCreateStairsUp(Vector2f position, int level)
 {
-	PersistentGameState *state = memoryGetPersistentGameState();
-	int index = activeCreate();
-	Active *active_ptr = activeGet(index);	
+	int index = entityMarkCreate();
+	Entity *entity_active = entityGet(index);
+	entity_active->has_active = 1;
+	entity_active->has_transform = 1;
+	entity_active->has_animation = 1;
+	entity_active->animation.texture_id = 4;
+	entity_active->animation.clip_col = 2;
+	entity_active->animation.clip_row = 15;
+	Active *active_ptr = &entity_active->active;	
+	Transform *transform_ptr = &entity_active->transform;
 	active_ptr->active_action = ACTIVE_STAIRS_UP;
-	active_ptr->level = state->current_level;
-
 	Map *map_ptr = mapGetCurrent();
 
-	active_ptr->position = position; 
+	transform_ptr->position = position; 
+	transform_ptr->level = level;
 
-	active_ptr->collider.w = 64;
-	active_ptr->collider.h = 64;
+	transform_ptr->collider.w = 64;
+	transform_ptr->collider.h = 64;
 
-	active_ptr->render.w = 64;
-	active_ptr->render.h = 64;
+	transform_ptr->render.w = 64;
+	transform_ptr->render.h = 64;
 }
 
-void activeCreateStairsDown(Vector2f position)
+void activeCreateStairsDown(Vector2f position, int level)
 {
-	PersistentGameState *state = memoryGetPersistentGameState();
-	int index = activeCreate();
-	Active *active_ptr = activeGet(index);	
+	int index = entityMarkCreate();
+	Entity *entity_active = entityGet(index);
+	entity_active->has_active = 1;
+	entity_active->has_transform = 1;
+	entity_active->has_animation = 1;
+	entity_active->animation.texture_id = 4;
+	entity_active->animation.clip_col = 5;
+	entity_active->animation.clip_row = 15;
+	Active *active_ptr = &entity_active->active;	
+	Transform *transform_ptr = &entity_active->transform;
 	active_ptr->active_action = ACTIVE_STAIRS_DOWN;
-	active_ptr->level = state->current_level;
-
 	Map *map_ptr = mapGetCurrent();
 
-	active_ptr->position = position; 
+	transform_ptr->position = position; 
+	transform_ptr->level = level;
 
-	active_ptr->collider.w = 64;
-	active_ptr->collider.h = 64;
+	transform_ptr->collider.w = 64;
+	transform_ptr->collider.h = 64;
 
-	active_ptr->render.w = 64;
-	active_ptr->render.h = 64;
-}
-
-void activeDrawList()
-{
-	PersistentGameState *state = memoryGetPersistentGameState();
-	TransientGameState *ui_state = memoryGetTransientGameState();
-	Active *active_ptr;
-	int active_count = 0, active_id = 0;
-
-	int last_active = state->active_count;
-	for(int i = 0; i < last_active; i++)
-	{
-
-		active_ptr = activeGet(i);
-		if(active_ptr)
-		{
-			if(active_ptr->level == state->current_level)
-			{
-				if(ui_state->highlight_type != OBJECT_TYPE_ACTIVE ||
-				   ui_state->highlight_id != active_ptr->id)
-				graphicsDrawTransform((Transform *)active_ptr);
-			}
-		}
-		else
-		{
-			last_active++;
-		}
-	}
+	transform_ptr->render.w = 64;
+	transform_ptr->render.h = 64;
 }
 

@@ -22,17 +22,9 @@ void memoryAllocGame()
 	global_memory->state_memory_offset = index;
 	index += sizeof(PersistentGameState);
 
-	global_memory->items_memory_offset = index;
-	global_memory->items_max_memory_size = MIB(2);
-	index += MIB(2);
-
-	global_memory->actives_memory_offset = index;
-	global_memory->actives_max_memory_size = MIB(2);
-	index += MIB(2);
-
-	global_memory->creatures_memory_offset = index;
-	global_memory->creatures_max_memory_size = MIB(2);	
-	index += MIB(2);
+	global_memory->entities_memory_offset = index;
+	global_memory->entities_max_memory_size = MIB(3);	
+	index += MIB(3);
 
 	global_memory->maps_memory_offset = index;
 	global_memory->maps_max_memory_size = MIB(2);	
@@ -57,6 +49,10 @@ void memoryAllocGame()
 	global_memory->sdl_state_memory_size = sizeof(GraphicsState);	
 	index += sizeof(GraphicsState);	
 
+	global_memory->audio_state_memory_offset = index;
+	global_memory->audio_state_memory_size = sizeof(AudioState);	
+	index += sizeof(AudioState);	
+
 	global_memory->transient_memory_size = index;
 	global_memory->transient_memory = calloc(index, 1);
 }
@@ -67,22 +63,10 @@ void *memoryGetPersistentGameState()
 				   global_memory->state_memory_offset;
 }
 
-void *memoryGetCreatures()
+void *memoryGetEntities()
 {
 	return (void *)global_memory->persistent_memory + 
-				   global_memory->creatures_memory_offset;
-}
-
-void *memoryGetItems()
-{
-	return (void *)global_memory->persistent_memory + 
-				   global_memory->items_memory_offset;
-}
-
-void *memoryGetActives()
-{
-	return (void *)global_memory->persistent_memory + 
-				   global_memory->actives_memory_offset;
+				   global_memory->entities_memory_offset;
 }
 
 void *memoryGetMaps()
@@ -107,6 +91,12 @@ void *memoryGetGraphicsState()
 {
 	return (void *)global_memory->transient_memory + 
 				   global_memory->sdl_state_memory_offset;
+}
+
+void *memoryGetAudioState()
+{
+	return (void *)global_memory->transient_memory + 
+				   global_memory->audio_state_memory_offset;
 }
 
 void memorySavePersistent()

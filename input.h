@@ -21,11 +21,13 @@ typedef struct ButtonState
 	int key_should_hold;
 } ButtonState;
 
-#define BUTTON_COUNT 8
+#define BUTTON_COUNT 13 
 typedef struct InputState 
 {
     union
     {
+		// NOTE(filip): MAKE SURE TO UPDATE BUTTON_COUNT WHEN ADDING OR
+		// 				REMOVING BUTTONS
         ButtonState buttons[BUTTON_COUNT];
         struct
 		{
@@ -34,9 +36,14 @@ typedef struct InputState
             ButtonState move_left;
 			ButtonState move_right;
 			ButtonState use;
-			ButtonState attack;
+			ButtonState attack_up;
+			ButtonState attack_down;
+			ButtonState attack_left;
+			ButtonState attack_right;
 			ButtonState inventory;
-			ButtonState click;
+			ButtonState left_click;
+			ButtonState right_click;
+			ButtonState debug;
         };
     };
 	Vector2i mouse_position;

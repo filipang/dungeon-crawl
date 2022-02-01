@@ -230,3 +230,32 @@ int vectorGetFacingDirection(Vector2f delta)
 		}
 	}
 }
+
+float vector2fGetAngle(Vector2f vector)
+{
+	float result;
+	if(vector.x >= 0 && vector.y >= 0)
+	{
+		result = (180/PI)*atan(vector.y/vector.x);
+	}
+	else if(vector.x <= 0 && vector.y >= 0)
+	{
+		vector.x *= -1;
+		result = (180/PI)*atan(vector.y/vector.x);
+		result = 180 - result;
+	}
+	else if(vector.x >= 0 && vector.y <= 0)
+	{
+		vector.y *= -1;
+		result = (180/PI)*atan(vector.y/vector.x);
+		result = 360 - result;
+	}
+	else if(vector.x <= 0 && vector.y <= 0)
+	{
+		vector.x *= -1;
+		vector.y *= -1;
+		result = (180/PI)*atan(vector.y/vector.x);
+		result = result + 180;
+	}
+	return result;
+}

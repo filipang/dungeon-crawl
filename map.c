@@ -31,7 +31,6 @@ int mapCreate()
 	}
 	printf("memory.c: NOT ENOUGH MEMORY TO CREATE MAP!\n");
 	return -1;
-
 }
 
 void mapDelete(int id)
@@ -47,7 +46,6 @@ void mapDelete(int id)
 	else
 	{
 		printf("memory.c: TRIED TO DELETE NON-EXISTING MAP\n");
-		*((char *)0) = 0;
 	}
 }
 
@@ -193,19 +191,19 @@ void mapCacheToTexture()
 		for(int j = 0; j < map_ptr->size.w; j++)
 		{
 			SDL_Rect tile;
+
 			tile.x = j * map_ptr->tile_len;
 			tile.y = i * map_ptr->tile_len;
 			tile.w = map_ptr->tile_len;
-			tile.h = map_ptr->tile_len;
-			SDL_Rect *source;
-			
-			//NOTE(filip): 
-			source = 
-				&sdl_state->clips[0]
-								 [graphicsGetClipFromTile(map_ptr->data[i][j])];
+			tile.h = map_ptr->tile_len ;
 
-			SDL_RenderCopy( sdl_state->renderer, sdl_state->textures[1], 
-							source, &tile);
+			printf("map.c: tile height: %d, tile length: %f\n", tile.h, map_ptr->tile_len);
+			SDL_Rect source;
+			
+			source = animationGetRect(0, 0, 5);
+
+			SDL_RenderCopy( sdl_state->renderer, sdl_state->textures[5], 
+							&source, &tile);
 		}
 	}
 }
